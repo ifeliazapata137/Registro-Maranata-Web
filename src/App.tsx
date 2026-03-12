@@ -9,7 +9,8 @@ export default function App() {
     mobile_number: '',
     street_address: '',
     emergency_contact_name: '',
-    emergency_contact_phone: ''
+    emergency_contact_phone: '',
+    is_saved: false
   });
 
   const [loading, setLoading] = useState(false);
@@ -34,7 +35,6 @@ export default function App() {
     try {
       const { error } = await supabase.from('birthdays').insert([{
         ...form,
-        category: 'Familia',
         relationship: '',
         notes: ''
       }]);
@@ -62,7 +62,7 @@ export default function App() {
           <h1>¡Registro Exitoso!</h1>
           <p>Tus datos han sido guardados correctamente en nuestra base de datos. ¡Gracias!</p>
           <button onClick={() => {
-            setForm({ person_name: '', birth_date: '', mobile_number: '', street_address: '', emergency_contact_name: '', emergency_contact_phone: '' });
+            setForm({ person_name: '', birth_date: '', mobile_number: '', street_address: '', emergency_contact_name: '', emergency_contact_phone: '', is_saved: false });
             setSuccess(false);
           }} className="btn-primary">Registrar a otra persona</button>
         </div>
@@ -117,6 +117,30 @@ export default function App() {
                 required
                 max={new Date().toISOString().split('T')[0]}
               />
+            </div>
+
+            <div className="form-group">
+              <label>¿Es Salvo y Bautizado?</label>
+              <div className="radio-group" style={{ display: 'flex', gap: '1rem', marginTop: '0.25rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="is_saved"
+                    checked={form.is_saved === true}
+                    onChange={() => setForm({ ...form, is_saved: true })}
+                  />
+                  Sí
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="is_saved"
+                    checked={form.is_saved === false}
+                    onChange={() => setForm({ ...form, is_saved: false })}
+                  />
+                  No
+                </label>
+              </div>
             </div>
 
             <div className="form-group">
