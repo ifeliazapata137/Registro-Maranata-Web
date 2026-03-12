@@ -96,11 +96,11 @@ export default function App() {
             </div>
 
             <div className="form-group">
-              <label>Nombre y Apellido *</label>
+              <label>Nombres y Apellidos *</label>
               <input
                 type="text"
                 name="person_name"
-                placeholder="Ej: Samuel Rivera"
+                placeholder="Ej: Pepito Pancho Pérez Juárez"
                 value={form.person_name}
                 onChange={updateForm}
                 required
