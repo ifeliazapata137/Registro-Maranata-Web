@@ -78,7 +78,7 @@ export default function App() {
             <Calendar size={32} color="#1152d4" />
           </div>
           <h1>Registro de Miembros</h1>
-          <p>Maranata Church Management</p>
+          <p>Iglesia Maranata</p>
         </div>
 
         {errorMsg && (
