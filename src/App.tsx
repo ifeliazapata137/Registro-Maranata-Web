@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from './lib/supabase';
-import { Calendar, User, Phone, MapPin, HeartPulse, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Calendar, User, MapPin, HeartPulse, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function App() {
   const [form, setForm] = useState({
