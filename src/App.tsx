@@ -13,9 +13,18 @@ export default function App() {
     is_saved: false
   });
 
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+
+  const formatPhone = (phone: string) => {
+    if (!phone) return '';
+    let clean = phone.replace(/\D/g, '');
+    if (clean.startsWith('0')) clean = clean.substring(1);
+    if (clean.startsWith('593')) clean = clean.substring(3);
+    return clean ? `+593 ${clean}` : '';
+  };
 
   const updateForm = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -24,6 +33,13 @@ export default function App() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
+
+    const lastRegistration = localStorage.getItem('last_registration_time');
+    if (lastRegistration && Date.now() - parseInt(lastRegistration) < 60000) {
+      setErrorMsg('Por favor espera un minuto antes de registrar a otra persona.');
+      return;
+    }
+
     setLoading(true);
 
     if (!form.person_name || !form.birth_date) {
@@ -33,8 +49,26 @@ export default function App() {
     }
 
     try {
+      let avatar_url = null;
+
+      if (avatarFile) {
+        const fileExt = avatarFile.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(fileName, avatarFile);
+        
+        if (uploadError) throw new Error('Error al subir la foto al servidor.');
+        
+        const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(fileName);
+        avatar_url = publicUrlData.publicUrl;
+      }
+
       const { error } = await supabase.from('birthdays').insert([{
         ...form,
+        mobile_number: formatPhone(form.mobile_number),
+        emergency_contact_phone: formatPhone(form.emergency_contact_phone),
+        avatar_url,
         relationship: '',
         notes: ''
       }]);
@@ -46,6 +80,7 @@ export default function App() {
         throw error;
       }
 
+      localStorage.setItem('last_registration_time', Date.now().toString());
       setSuccess(true);
     } catch (err: any) {
       setErrorMsg(err.message || 'Ocurrió un error al guardar los datos.');
@@ -63,6 +98,7 @@ export default function App() {
           <p>Tus datos han sido guardados correctamente en nuestra base de datos. ¡Gracias!</p>
           <button onClick={() => {
             setForm({ person_name: '', birth_date: '', mobile_number: '', street_address: '', emergency_contact_name: '', emergency_contact_phone: '', is_saved: false });
+            setAvatarFile(null);
             setSuccess(false);
           }} className="btn-primary">Registrar a otra persona</button>
         </div>
@@ -93,6 +129,16 @@ export default function App() {
             <div className="section-title">
               <User size={18} />
               <span>INFORMACIÓN PERSONAL</span>
+            </div>
+
+            <div className="form-group">
+              <label>Foto de Perfil (Opcional)</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
+                style={{ padding: '12px', border: '1px dashed #ccc', borderRadius: '8px', cursor: 'pointer', background: '#f8fafc' }}
+              />
             </div>
 
             <div className="form-group">
