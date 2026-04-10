@@ -10,6 +10,7 @@ export default function App() {
     street_address: '',
     emergency_contact_name: '',
     emergency_contact_phone: '',
+    relationship: '',
     is_saved: false
   });
 
@@ -22,8 +23,9 @@ export default function App() {
     if (!phone) return '';
     let clean = phone.replace(/\D/g, '');
     if (clean.startsWith('0')) clean = clean.substring(1);
+    // Remove existing +593 or 593 so we deal with base clean number
     if (clean.startsWith('593')) clean = clean.substring(3);
-    return clean ? `+593 ${clean}` : '';
+    return clean ? `+593${clean}` : '';
   };
 
   const updateForm = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -68,8 +70,8 @@ export default function App() {
         ...form,
         mobile_number: formatPhone(form.mobile_number),
         emergency_contact_phone: formatPhone(form.emergency_contact_phone),
+        relationship: form.relationship,
         avatar_url,
-        relationship: '',
         notes: ''
       }]);
 
@@ -97,7 +99,7 @@ export default function App() {
           <h1>¡Registro Exitoso!</h1>
           <p>Tus datos han sido guardados correctamente en nuestra base de datos. ¡Gracias!</p>
           <button onClick={() => {
-            setForm({ person_name: '', birth_date: '', mobile_number: '', street_address: '', emergency_contact_name: '', emergency_contact_phone: '', is_saved: false });
+            setForm({ person_name: '', birth_date: '', mobile_number: '', street_address: '', emergency_contact_name: '', emergency_contact_phone: '', relationship: '', is_saved: false });
             setAvatarFile(null);
             setSuccess(false);
           }} className="btn-primary">Registrar a otra persona</button>
@@ -154,6 +156,17 @@ export default function App() {
             </div>
 
             <div className="form-group">
+              <label>¿Cómo le gustaría que le llamen?</label>
+              <input
+                type="text"
+                name="relationship"
+                placeholder="Ej: Pepe"
+                value={form.relationship}
+                onChange={updateForm}
+              />
+            </div>
+
+            <div className="form-group">
               <label>Fecha de Nacimiento *</label>
               <input
                 type="date"
@@ -192,11 +205,10 @@ export default function App() {
             <div className="form-group">
               <label>Número de Celular</label>
               <div className="phone-input">
-                <span className="country-code">+593</span>
                 <input
                   type="tel"
                   name="mobile_number"
-                  placeholder="(099) 123-4567"
+                  placeholder="Ej: 0987654321"
                   value={form.mobile_number}
                   onChange={updateForm}
                 />
@@ -241,7 +253,7 @@ export default function App() {
               <input
                 type="tel"
                 name="emergency_contact_phone"
-                placeholder="Ej: (098) 987-6543"
+                placeholder="Ej: 0987654321"
                 value={form.emergency_contact_phone}
                 onChange={updateForm}
               />
